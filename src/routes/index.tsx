@@ -122,32 +122,46 @@ function PainelBI() {
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-[1400px] px-4 py-8 sm:px-6 lg:px-10">
-      {/* Header */}
-      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs font-medium shadow-[var(--shadow-soft)]">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
-            </span>
-            Captura automática via Telegram
+      {/* Header premium com gradient */}
+      <header className="relative mb-8 overflow-hidden rounded-3xl border bg-card p-6 shadow-[var(--shadow-elevated)] sm:p-8">
+        <div
+          className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full opacity-40 blur-3xl"
+          style={{ background: "var(--gradient-aurora)" }}
+        />
+        <div
+          className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full opacity-25 blur-3xl"
+          style={{ background: "var(--gradient-ocean)" }}
+        />
+        <div className="relative flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium shadow-[var(--shadow-soft)] backdrop-blur">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+              </span>
+              Captura automática via Telegram • em tempo real
+            </div>
+            <h1 className="font-[Sora] text-3xl font-bold tracking-tight sm:text-5xl">
+              <span className="bg-[image:var(--gradient-aurora)] bg-clip-text text-transparent">
+                Painel
+              </span>{" "}
+              de Vendas Diárias
+            </h1>
+            <p className="mt-2 max-w-xl text-sm text-muted-foreground sm:text-base">
+              Visão executiva por canal, comparativos, projeções e insights
+              inteligentes — tudo em um só lugar.
+            </p>
           </div>
-          <h1 className="font-[Sora] text-3xl font-bold tracking-tight sm:text-4xl">
-            Painel de Vendas Diárias
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Visão executiva por canal • atualização em tempo real • insights e projeções
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={syncNow}
-            disabled={syncing}
-            className="inline-flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm font-medium shadow-[var(--shadow-soft)] transition-all hover:shadow-[var(--shadow-elevated)] disabled:opacity-50"
-          >
-            <RefreshCw className={cn("h-4 w-4", syncing && "animate-spin")} />
-            {syncing ? "Sincronizando..." : "Sincronizar agora"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={syncNow}
+              disabled={syncing}
+              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background shadow-[var(--shadow-elevated)] transition-all hover:scale-[1.02] disabled:opacity-50"
+            >
+              <RefreshCw className={cn("h-4 w-4", syncing && "animate-spin")} />
+              {syncing ? "Sincronizando..." : "Sincronizar agora"}
+            </button>
+          </div>
         </div>
       </header>
 
