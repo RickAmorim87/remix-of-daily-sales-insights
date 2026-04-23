@@ -122,6 +122,16 @@ function PainelBI() {
 
   const mediaDia = rows.length ? totals.total / rows.length : 0;
 
+  const periodLabel =
+    periodos.find((p) => p.key === period)?.label ?? "Período";
+  const exportPayload = {
+    rows,
+    totals,
+    periodLabel,
+    mediaDia,
+    projecaoMes: projecaoMes.proj,
+  };
+
   async function syncNow() {
     setSyncing(true);
     try {
