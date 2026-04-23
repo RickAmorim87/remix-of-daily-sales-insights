@@ -240,6 +240,78 @@ function PainelBI() {
         </div>
       ) : (
         <>
+          {/* HERO BANNER — American Burger */}
+          <section className="mb-5 grid grid-cols-1 gap-3.5 lg:grid-cols-3">
+            <div
+              className="relative col-span-1 overflow-hidden rounded-2xl border lg:col-span-2"
+              style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-soft)", minHeight: 180 }}
+            >
+              <img
+                src={lojaAB}
+                alt="Loja American Burger"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(90deg, rgba(8,12,20,0.92) 0%, rgba(8,12,20,0.55) 55%, rgba(8,12,20,0.15) 100%)",
+                }}
+              />
+              <div className="relative flex h-full flex-col justify-between p-6">
+                <div>
+                  <span
+                    className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
+                    style={{
+                      background: "rgba(239,68,68,0.18)",
+                      color: "#fca5a5",
+                      border: "1px solid rgba(239,68,68,0.30)",
+                    }}
+                  >
+                    <Sparkles className="h-3 w-3" /> Inaugurado
+                  </span>
+                  <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+                    American Burger
+                  </h2>
+                  <p className="mt-1 max-w-md text-[12px] text-white/70">
+                    Praça de Alimentação · ao lado do Spoleto · acompanhamento
+                    de vendas em tempo real
+                  </p>
+                </div>
+                <div className="mt-4 flex items-center gap-2 text-[11px] text-white/60">
+                  <BarChart3 className="h-3.5 w-3.5" />
+                  <span>Dashboard sincronizado com o grupo do Telegram</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              className="relative overflow-hidden rounded-2xl border"
+              style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-soft)", minHeight: 180 }}
+            >
+              <img
+                src={neonAB}
+                alt="Letreiro neon American Burger"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(8,12,20,0.10) 0%, rgba(8,12,20,0.85) 100%)",
+                }}
+              />
+              <div className="relative flex h-full flex-col justify-end p-5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/60">
+                  Identidade
+                </p>
+                <p className="mt-1 text-base font-bold text-white">
+                  Sabor que ilumina o dia
+                </p>
+              </div>
+            </div>
+          </section>
+
           {/* KPIs principais — colorful premium */}
           <section className="mb-4 grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
             <KpiHero
