@@ -21,6 +21,7 @@ import {
   CanalBarChart,
   CanalPieChart,
   EvolucaoChart,
+  ProjecaoChart,
 } from "@/components/painel/Charts";
 import { FechamentosTable } from "@/components/painel/FechamentosTable";
 import { AlertsPanel } from "@/components/painel/AlertsPanel";
