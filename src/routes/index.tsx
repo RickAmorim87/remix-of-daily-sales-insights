@@ -2,10 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
   Activity,
+  BarChart3,
   CalendarRange,
   CreditCard,
   RefreshCw,
   Sparkles,
+  Target,
   Wallet,
   Zap,
 } from "lucide-react";
@@ -16,7 +18,6 @@ import {
   sumChannels,
   type Period,
 } from "@/lib/fechamentos";
-import { KpiCard } from "@/components/painel/KpiCard";
 import {
   CanalBarChart,
   CanalPieChart,
@@ -49,6 +50,15 @@ const periodos: { key: Period; label: string }[] = [
   { key: "all", label: "Tudo" },
 ];
 
+const channelStyles = {
+  caixa:   { color: "#3b82f6", dim: "rgba(59,130,246,0.15)", icon: "💰" },
+  totem:   { color: "#22c55e", dim: "rgba(34,197,94,0.15)",  icon: "🧮" },
+  food99:  { color: "#f97316", dim: "rgba(249,115,22,0.15)", icon: "🍔" },
+  ifood:   { color: "#ef4444", dim: "rgba(239,68,68,0.15)",  icon: "🍕" },
+  cartoes: { color: "#a855f7", dim: "rgba(168,85,247,0.15)", icon: "💳" },
+  pix:     { color: "#06b6d4", dim: "rgba(6,182,212,0.15)",  icon: "⚡" },
+} as const;
+
 function PainelBI() {
   const { data, loading, reload } = useFechamentos();
   const [period, setPeriod] = useState<Period>("30d");
@@ -57,7 +67,6 @@ function PainelBI() {
   const rows = useMemo(() => filterByPeriod(data, period), [data, period]);
   const totals = useMemo(() => sumChannels(rows), [rows]);
 
-  // comparativo: período anterior de mesma duração
   const previousVariation = useMemo(() => {
     if (rows.length === 0) return null;
     const sortedAll = [...data].sort((a, b) => a.data.localeCompare(b.data));
@@ -91,7 +100,6 @@ function PainelBI() {
     };
   }, [data, rows, totals]);
 
-  // projeção mês: média diária × dias do mês
   const projecaoMes = useMemo(() => {
     const today = new Date();
     const ano = today.getFullYear();
@@ -121,68 +129,103 @@ function PainelBI() {
   }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-[1400px] px-4 py-8 sm:px-6 lg:px-10">
-      {/* Header premium com gradient */}
-      <header className="relative mb-8 overflow-hidden rounded-3xl border bg-card p-6 shadow-[var(--shadow-elevated)] sm:p-8">
-        <div
-          className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full opacity-40 blur-3xl"
-          style={{ background: "var(--gradient-aurora)" }}
-        />
-        <div
-          className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full opacity-25 blur-3xl"
-          style={{ background: "var(--gradient-ocean)" }}
-        />
-        <div className="relative flex flex-wrap items-end justify-between gap-4">
+    <main className="mx-auto min-h-screen w-full max-w-[1340px] px-4 pb-16 pt-7 sm:px-6 lg:px-8">
+      {/* TOPBAR */}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-lg shadow-[var(--shadow-glow)]"
+            style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)" }}
+          >
+            📊
+          </div>
           <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border bg-background/80 px-3 py-1 text-xs font-medium shadow-[var(--shadow-soft)] backdrop-blur">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
-              </span>
-              Captura automática via Telegram • em tempo real
-            </div>
-            <h1 className="font-[Sora] text-3xl font-bold tracking-tight sm:text-5xl">
-              <span className="bg-[image:var(--gradient-aurora)] bg-clip-text text-transparent">
-                Painel
-              </span>{" "}
-              de Vendas Diárias
-            </h1>
-            <p className="mt-2 max-w-xl text-sm text-muted-foreground sm:text-base">
-              Visão executiva por canal, comparativos, projeções e insights
-              inteligentes — tudo em um só lugar.
+            <p className="text-base font-bold tracking-tight">Fechamento Diário</p>
+            <p className="text-[11px] text-muted-foreground">
+              Painel Executivo · Hamburgueria
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={syncNow}
-              disabled={syncing}
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background shadow-[var(--shadow-elevated)] transition-all hover:scale-[1.02] disabled:opacity-50"
-            >
-              <RefreshCw className={cn("h-4 w-4", syncing && "animate-spin")} />
-              {syncing ? "Sincronizando..." : "Sincronizar agora"}
-            </button>
-          </div>
         </div>
-      </header>
 
-      {/* Filtros de período */}
-      <div className="mb-6 flex flex-wrap items-center gap-2">
-        <CalendarRange className="h-4 w-4 text-muted-foreground" />
-        <span className="mr-1 text-xs font-medium text-muted-foreground">Período:</span>
-        {periodos.map((p) => (
-          <button
-            key={p.key}
-            onClick={() => setPeriod(p.key)}
-            className={cn(
-              "rounded-full px-4 py-1.5 text-xs font-semibold transition-all",
-              period === p.key
-                ? "bg-foreground text-background shadow-[var(--shadow-soft)]"
-                : "border bg-card text-muted-foreground hover:text-foreground",
-            )}
+        <div className="flex items-center gap-2.5">
+          <span
+            className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-medium"
+            style={{
+              background: "rgba(34,197,94,0.10)",
+              borderColor: "rgba(34,197,94,0.20)",
+              color: "#4ade80",
+            }}
           >
-            {p.label}
+            <span className="relative flex h-2 w-2">
+              <span
+                className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-70"
+                style={{ background: "#22c55e" }}
+              />
+              <span
+                className="relative inline-flex h-2 w-2 rounded-full"
+                style={{ background: "#22c55e" }}
+              />
+            </span>
+            Captura ao vivo · Telegram
+          </span>
+          <button
+            onClick={syncNow}
+            disabled={syncing}
+            className="inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50"
+            style={{
+              background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+              boxShadow: "0 8px 24px rgba(59,130,246,0.35)",
+            }}
+          >
+            <RefreshCw className={cn("h-3.5 w-3.5", syncing && "animate-spin")} />
+            {syncing ? "Sincronizando..." : "Sincronizar agora"}
           </button>
-        ))}
+        </div>
+      </div>
+
+      {/* PAGE HEADER */}
+      <div className="mb-7 flex flex-wrap items-end justify-between gap-5">
+        <div>
+          <h1
+            className="text-3xl font-extrabold tracking-tight sm:text-4xl"
+            style={{
+              background: "linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            Painel de Fechamentos
+          </h1>
+          <p className="mt-1.5 max-w-xl text-[13px] text-muted-foreground">
+            Fechamentos automáticos via Telegram · consolidação por canal ·
+            projeções e histórico em tempo real
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <CalendarRange className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className="mr-1 text-xs text-muted-foreground">Período:</span>
+          {periodos.map((p) => (
+            <button
+              key={p.key}
+              onClick={() => setPeriod(p.key)}
+              className={cn(
+                "rounded-full px-3.5 py-1.5 text-xs font-medium transition-all",
+                period === p.key
+                  ? "text-white shadow-[0_6px_18px_rgba(59,130,246,0.4)]"
+                  : "border bg-card text-muted-foreground hover:text-foreground",
+              )}
+              style={
+                period === p.key
+                  ? { background: "#3b82f6", borderColor: "#3b82f6" }
+                  : undefined
+              }
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading && data.length === 0 ? (
@@ -191,58 +234,53 @@ function PainelBI() {
         </div>
       ) : (
         <>
-          {/* KPIs principais */}
-          <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <KpiCard
-              variant="primary"
-              label="Faturamento total"
+          {/* KPIs principais — colorful premium */}
+          <section className="mb-4 grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+            <KpiHero
+              tone="blue"
+              icon={<Zap className="h-3.5 w-3.5" />}
+              label="Faturamento total do período"
               value={totals.total}
               variation={previousVariation?.total ?? null}
-              variationLabel={
+              caption={
                 previousVariation
-                  ? `vs ${previousVariation.days}d anteriores`
-                  : `${rows.length} dia(s) no período`
+                  ? `${rows.length} dias · vs ${previousVariation.days}d anteriores`
+                  : `${rows.length} dias consolidados`
               }
-              icon={<Sparkles className="h-4 w-4" />}
             />
-            <KpiCard
-              label="Média por dia"
+            <KpiHero
+              icon={<Activity className="h-3.5 w-3.5" />}
+              label="Média diária"
               value={mediaDia}
-              subtitle={`${rows.length} dia(s) consolidados`}
-              icon={<Activity className="h-4 w-4 text-primary" />}
+              caption="Baseado nos dias consolidados"
             />
-            <KpiCard
+            <KpiHero
+              icon={<CreditCard className="h-3.5 w-3.5" />}
               label="Pagamentos eletrônicos"
               value={totals.cartoes + totals.pix}
-              variation={
-                previousVariation && previousVariation.cartoes != null && previousVariation.pix != null
-                  ? (previousVariation.cartoes + previousVariation.pix) / 2
-                  : null
-              }
-              variationLabel="Cartões + Pix"
-              icon={<CreditCard className="h-4 w-4 text-primary" />}
+              caption="Cartões + Pix somados"
             />
-            <KpiCard
-              variant="success"
+            <KpiHero
+              tone="green"
+              icon={<Target className="h-3.5 w-3.5" />}
               label="Projeção do mês"
               value={projecaoMes.proj}
-              subtitle={`${projecaoMes.diasFeitos}/${projecaoMes.diasMes} dias • atual ${formatCurrency(projecaoMes.atual)}`}
-              icon={<Zap className="h-4 w-4" />}
+              caption={`${projecaoMes.diasFeitos}/${projecaoMes.diasMes} dias · média ${formatCurrency(mediaDia)}/dia`}
             />
           </section>
 
-          {/* Mini KPIs por canal */}
-          <section className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            <CanalMini label="Caixa" value={totals.caixa} variation={previousVariation?.caixa} icon="💰" />
-            <CanalMini label="Totem" value={totals.totem} variation={previousVariation?.totem} icon="🧮" />
-            <CanalMini label="99Food" value={totals.food99} variation={previousVariation?.food99} icon="🍔" />
-            <CanalMini label="iFood" value={totals.ifood} variation={previousVariation?.ifood} icon="🍕" />
-            <CanalMini label="Cartões" value={totals.cartoes} variation={previousVariation?.cartoes} icon="💳" />
-            <CanalMini label="Pix" value={totals.pix} variation={previousVariation?.pix} icon="⚡" />
+          {/* CHANNEL ROW */}
+          <section className="mb-6 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
+            <ChannelCard k="caixa"   label="Caixa"   value={totals.caixa}   total={totals.total} />
+            <ChannelCard k="totem"   label="Totem"   value={totals.totem}   total={totals.total} />
+            <ChannelCard k="food99"  label="99Food"  value={totals.food99}  total={totals.total} />
+            <ChannelCard k="ifood"   label="iFood"   value={totals.ifood}   total={totals.total} />
+            <ChannelCard k="cartoes" label="Cartões" value={totals.cartoes} total={totals.total} />
+            <ChannelCard k="pix"     label="Pix"     value={totals.pix}     total={totals.total} />
           </section>
 
           {/* Charts */}
-          <section className="mb-6 grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <section className="mb-5 grid grid-cols-1 gap-4 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <EvolucaoChart rows={rows} />
             </div>
@@ -251,12 +289,12 @@ function PainelBI() {
             </div>
           </section>
 
-          {/* Projeção colorida com forecast */}
-          <section className="mb-6">
+          {/* Projeção */}
+          <section className="mb-5">
             <ProjecaoChart rows={rows} daysAhead={14} />
           </section>
 
-          <section className="mb-6 grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <section className="mb-5 grid grid-cols-1 gap-4 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <CanalBarChart rows={rows} />
             </div>
@@ -265,54 +303,138 @@ function PainelBI() {
             </div>
           </section>
 
-          {/* Tabela */}
           <section className="mb-10">
             <FechamentosTable rows={rows} somaTotal={totals.total} />
           </section>
 
-          {/* Setup info */}
           <SetupCard hasData={data.length > 0} />
         </>
       )}
+
+      <footer className="mt-10 flex items-center justify-center gap-3 text-[11px] text-muted-foreground">
+        <span>Painel Executivo · Fechamento Diário</span>
+        <span className="h-1 w-1 rounded-full bg-white/15" />
+        <span>Captura automática via Telegram</span>
+      </footer>
     </main>
   );
 }
 
-function CanalMini({
+function KpiHero({
+  tone,
+  icon,
   label,
   value,
   variation,
-  icon,
+  caption,
 }: {
+  tone?: "blue" | "green";
+  icon: React.ReactNode;
   label: string;
   value: number;
   variation?: number | null;
-  icon: string;
+  caption?: string;
 }) {
+  const toneBg =
+    tone === "blue"
+      ? { background: "var(--gradient-card-blue)", borderColor: "rgba(59,130,246,0.30)" }
+      : tone === "green"
+        ? { background: "var(--gradient-card-green)", borderColor: "rgba(34,197,94,0.25)" }
+        : { background: "var(--card)", borderColor: "var(--border)" };
+  const valueColor =
+    tone === "blue" ? "#93c5fd" : tone === "green" ? "#86efac" : undefined;
+
   return (
-    <div className="rounded-xl border bg-card p-3 shadow-[var(--shadow-soft)]">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-muted-foreground">{label}</span>
-        <span className="text-base">{icon}</span>
+    <div
+      className="relative overflow-hidden rounded-2xl border p-5 transition-all hover:-translate-y-0.5"
+      style={{ ...toneBg, boxShadow: "var(--shadow-soft)" }}
+    >
+      {tone && (
+        <div
+          className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full opacity-30"
+          style={{
+            background:
+              tone === "blue" ? "rgba(59,130,246,0.45)" : "rgba(34,197,94,0.40)",
+            filter: "blur(12px)",
+          }}
+        />
+      )}
+      <div className="relative">
+        <div className="mb-3 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+          <span
+            className="flex h-6 w-6 items-center justify-center rounded-md"
+            style={{ background: "rgba(255,255,255,0.07)" }}
+          >
+            {icon}
+          </span>
+          {label}
+        </div>
+        <p
+          className="text-[28px] font-extrabold leading-none tracking-tight tabular-nums"
+          style={valueColor ? { color: valueColor } : undefined}
+        >
+          {formatCurrency(value)}
+        </p>
+        <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          {caption && <span>{caption}</span>}
+          {variation != null && (
+            <span
+              className="ml-auto inline-flex items-center gap-0.5 font-semibold"
+              style={{
+                color:
+                  variation > 0.5
+                    ? "#4ade80"
+                    : variation < -0.5
+                      ? "#f87171"
+                      : "var(--muted-foreground)",
+              }}
+            >
+              {variation >= 0 ? "↑" : "↓"} {Math.abs(variation).toFixed(1)}%
+            </span>
+          )}
+        </div>
       </div>
-      <p className="mt-1.5 font-[Sora] text-base font-bold tabular-nums">
+    </div>
+  );
+}
+
+function ChannelCard({
+  k,
+  label,
+  value,
+  total,
+}: {
+  k: keyof typeof channelStyles;
+  label: string;
+  value: number;
+  total: number;
+}) {
+  const s = channelStyles[k];
+  const pct = total ? (value / total) * 100 : 0;
+  return (
+    <div
+      className="relative overflow-hidden rounded-2xl border bg-card p-4 transition-all hover:-translate-y-0.5"
+      style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-soft)" }}
+    >
+      <div
+        className="absolute inset-x-0 bottom-0 h-[2px]"
+        style={{ background: s.color }}
+      />
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          {label}
+        </span>
+        <span className="text-base">{s.icon}</span>
+      </div>
+      <p className="text-[15px] font-bold leading-tight tracking-tight tabular-nums">
         {formatCurrency(value)}
       </p>
-      {variation != null && (
-        <p
-          className={cn(
-            "mt-0.5 text-[11px] font-semibold",
-            variation > 0.5
-              ? "text-success"
-              : variation < -0.5
-                ? "text-destructive"
-                : "text-muted-foreground",
-          )}
-        >
-          {variation >= 0 ? "+" : ""}
-          {variation.toFixed(1)}% vs anterior
-        </p>
-      )}
+      <span
+        className="mt-2 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium tabular-nums"
+        style={{ background: s.dim, color: s.color }}
+      >
+        {pct.toFixed(1)}%
+      </span>
     </div>
   );
 }
@@ -322,29 +444,29 @@ function SetupCard({ hasData }: { hasData: boolean }) {
     <div className="rounded-2xl border border-dashed bg-card/60 p-5 text-sm">
       <div className="mb-2 flex items-center gap-2">
         <Wallet className="h-4 w-4 text-primary" />
-        <h3 className="font-[Sora] font-semibold">Como configurar a captura automática</h3>
+        <h3 className="font-semibold">Como configurar a captura automática</h3>
       </div>
       <ol className="ml-5 list-decimal space-y-1 text-muted-foreground">
         <li>
           Crie um bot no <strong>@BotFather</strong> no Telegram e copie o <em>token</em>.
         </li>
         <li>
-          Adicione o bot ao grupo onde chegam os fechamentos e dê permissão de leitura
-          (no BotFather, desative o <em>privacy mode</em> com <code>/setprivacy</code>).
+          Adicione o bot ao grupo onde chegam os fechamentos e desative o
+          <em> privacy mode</em> com <code>/setprivacy</code>.
         </li>
         <li>
-          A integração já está conectada ao Lovable. As mensagens são lidas automaticamente
-          a cada execução do agendamento.
+          A integração já está conectada ao Lovable. As mensagens são lidas
+          automaticamente pelo agendamento.
         </li>
         <li>
-          Use <strong>"Sincronizar agora"</strong> no topo para puxar mensagens manualmente
-          a qualquer momento.
+          Use <strong>"Sincronizar agora"</strong> no topo para puxar mensagens
+          manualmente a qualquer momento.
         </li>
       </ol>
       {!hasData && (
         <p className="mt-3 text-xs text-muted-foreground">
-          Quando a próxima mensagem com <strong>"FECHAMENTO DO DIA"</strong> chegar, o painel
-          começa a popular automaticamente.
+          Quando a próxima mensagem com <strong>"FECHAMENTO DO DIA"</strong>{" "}
+          chegar, o painel popula automaticamente.
         </p>
       )}
     </div>
