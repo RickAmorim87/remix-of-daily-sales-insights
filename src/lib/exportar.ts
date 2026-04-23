@@ -14,7 +14,8 @@ import {
   BorderStyle,
   ShadingType,
 } from "docx";
-import { saveAs } from "file-saver";
+import FileSaver from "file-saver";
+const { saveAs } = FileSaver;
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -337,9 +338,13 @@ export function buildWhatsappText(p: ExportPayload): string {
   return lines.join("\n");
 }
 
+// Número de destino padrão para envio do relatório via WhatsApp
+const WHATSAPP_TARGET = "5531983203232";
+
 export function shareWhatsapp(p: ExportPayload) {
-  const text = encodeURIComponent(buildWhatsappText(p));
-  // wa.me funciona no mobile e no web
-  const url = `https://wa.me/?text=${text}`;
+  const today = format(new Date(), "dd/MM/yyyy", { locale: ptBR });
+  const intro = `Olá! Segue o relatório de fechamento do dia ${today} do American Burger\n\n`;
+  const text = encodeURIComponent(intro + buildWhatsappText(p));
+  const url = `https://wa.me/${WHATSAPP_TARGET}?text=${text}`;
   window.open(url, "_blank", "noopener,noreferrer");
 }
