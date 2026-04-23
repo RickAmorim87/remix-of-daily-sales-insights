@@ -251,6 +251,11 @@ function PainelBI() {
             </div>
           </section>
 
+          {/* Projeção colorida com forecast */}
+          <section className="mb-6">
+            <ProjecaoChart rows={rows} daysAhead={14} />
+          </section>
+
           <section className="mb-6 grid grid-cols-1 gap-5 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <CanalBarChart rows={rows} />
