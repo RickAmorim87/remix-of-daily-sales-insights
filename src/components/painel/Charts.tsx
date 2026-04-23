@@ -280,8 +280,8 @@ export function ProjecaoChart({ rows, daysAhead = 14 }: { rows: Fechamento[]; da
             <YAxis tickFormatter={(v) => formatCompact(Number(v))} tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={70} />
             <Tooltip
               contentStyle={tooltipStyle}
-              formatter={(v: number | null, name: string) =>
-                v == null ? ["—", name] : [formatCurrency(Number(v)), name]
+              formatter={(v: any, name: any) =>
+                v == null ? ["—", String(name)] : [formatCurrency(Number(v)), String(name)]
               }
             />
             <Area type="monotone" dataKey="real" name="Real" stroke="#6366f1" strokeWidth={2.5} fill="url(#realGrad)" connectNulls={false} />
