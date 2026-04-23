@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      fechamentos_diarios: {
+        Row: {
+          caixa: number
+          cartoes: number
+          chat_id: number | null
+          created_at: string
+          data: string
+          food99: number
+          id: string
+          ifood: number
+          message_id: number | null
+          pix: number
+          raw_text: string | null
+          total: number
+          totem: number
+          updated_at: string
+        }
+        Insert: {
+          caixa?: number
+          cartoes?: number
+          chat_id?: number | null
+          created_at?: string
+          data: string
+          food99?: number
+          id?: string
+          ifood?: number
+          message_id?: number | null
+          pix?: number
+          raw_text?: string | null
+          total?: number
+          totem?: number
+          updated_at?: string
+        }
+        Update: {
+          caixa?: number
+          cartoes?: number
+          chat_id?: number | null
+          created_at?: string
+          data?: string
+          food99?: number
+          id?: string
+          ifood?: number
+          message_id?: number | null
+          pix?: number
+          raw_text?: string | null
+          total?: number
+          totem?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      telegram_bot_state: {
+        Row: {
+          id: number
+          last_poll_at: string | null
+          update_offset: number
+          updated_at: string
+        }
+        Insert: {
+          id: number
+          last_poll_at?: string | null
+          update_offset?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          last_poll_at?: string | null
+          update_offset?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
