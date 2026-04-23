@@ -5,16 +5,18 @@ import {
   BarChart3,
   CalendarRange,
   CreditCard,
+  Download,
+  FileText,
+  MessageCircle,
   RefreshCw,
-  Sparkles,
   Target,
   Wallet,
   Zap,
 } from "lucide-react";
 import { useFechamentos } from "@/hooks/use-fechamentos";
 import logoAB from "@/assets/american-burger-logo.png";
-import neonAB from "@/assets/american-burger-neon.png";
 import lojaAB from "@/assets/american-burger-loja.png";
+import { exportToPDF, exportToDOCX, shareWhatsapp } from "@/lib/exportar";
 import {
   filterByPeriod,
   formatCurrency,
@@ -120,6 +122,16 @@ function PainelBI() {
 
   const mediaDia = rows.length ? totals.total / rows.length : 0;
 
+  const periodLabel =
+    periodos.find((p) => p.key === period)?.label ?? "Período";
+  const exportPayload = {
+    rows,
+    totals,
+    periodLabel,
+    mediaDia,
+    projecaoMes: projecaoMes.proj,
+  };
+
   async function syncNow() {
     setSyncing(true);
     try {
@@ -136,13 +148,11 @@ function PainelBI() {
       {/* TOPBAR */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div
-            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/95 p-1 shadow-[0_8px_24px_rgba(239,68,68,0.35)] ring-1 ring-white/20"
-          >
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white shadow-[0_8px_24px_rgba(239,68,68,0.30)] ring-1 ring-white/15">
             <img
               src={logoAB}
               alt="American Burger"
-              className="h-full w-full object-contain"
+              className="h-12 w-12 object-contain"
             />
           </div>
           <div>
@@ -153,9 +163,9 @@ function PainelBI() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2">
           <span
-            className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-medium"
+            className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium"
             style={{
               background: "rgba(34,197,94,0.10)",
               borderColor: "rgba(34,197,94,0.20)",
@@ -172,19 +182,50 @@ function PainelBI() {
                 style={{ background: "#22c55e" }}
               />
             </span>
-            Captura ao vivo · Telegram
+            Ao vivo
           </span>
+
+          {/* Export buttons */}
+          <button
+            onClick={() => exportToPDF(exportPayload)}
+            className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3.5 py-1.5 text-xs font-semibold text-foreground transition-all hover:-translate-y-0.5 hover:border-white/20"
+            title="Exportar PDF"
+          >
+            <FileText className="h-3.5 w-3.5" style={{ color: "#ef4444" }} />
+            PDF
+          </button>
+          <button
+            onClick={() => exportToDOCX(exportPayload)}
+            className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3.5 py-1.5 text-xs font-semibold text-foreground transition-all hover:-translate-y-0.5 hover:border-white/20"
+            title="Exportar DOCX"
+          >
+            <Download className="h-3.5 w-3.5" style={{ color: "#3b82f6" }} />
+            DOCX
+          </button>
+          <button
+            onClick={() => shareWhatsapp(exportPayload)}
+            className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold text-white transition-all hover:-translate-y-0.5"
+            style={{
+              background: "linear-gradient(135deg, #25D366, #128C7E)",
+              boxShadow: "0 6px 18px rgba(37,211,102,0.35)",
+            }}
+            title="Enviar pelo WhatsApp"
+          >
+            <MessageCircle className="h-3.5 w-3.5" />
+            WhatsApp
+          </button>
+
           <button
             onClick={syncNow}
             disabled={syncing}
-            className="inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50"
             style={{
               background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
               boxShadow: "0 8px 24px rgba(59,130,246,0.35)",
             }}
           >
             <RefreshCw className={cn("h-3.5 w-3.5", syncing && "animate-spin")} />
-            {syncing ? "Sincronizando..." : "Sincronizar agora"}
+            {syncing ? "Sincronizando..." : "Sincronizar"}
           </button>
         </div>
       </div>
@@ -240,74 +281,40 @@ function PainelBI() {
         </div>
       ) : (
         <>
-          {/* HERO BANNER — American Burger */}
-          <section className="mb-5 grid grid-cols-1 gap-3.5 lg:grid-cols-3">
+          {/* HERO BANNER — foto da loja em wide */}
+          <section className="mb-5">
             <div
-              className="relative col-span-1 overflow-hidden rounded-2xl border lg:col-span-2"
-              style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-soft)", minHeight: 180 }}
+              className="relative overflow-hidden rounded-2xl border"
+              style={{
+                borderColor: "var(--border)",
+                boxShadow: "var(--shadow-soft)",
+                minHeight: 160,
+              }}
             >
               <img
                 src={lojaAB}
                 alt="Loja American Burger"
-                className="absolute inset-0 h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover object-center"
               />
               <div
                 className="absolute inset-0"
                 style={{
                   background:
-                    "linear-gradient(90deg, rgba(8,12,20,0.92) 0%, rgba(8,12,20,0.55) 55%, rgba(8,12,20,0.15) 100%)",
+                    "linear-gradient(90deg, rgba(8,12,20,0.92) 0%, rgba(8,12,20,0.55) 50%, rgba(8,12,20,0.10) 100%)",
                 }}
               />
-              <div className="relative flex h-full flex-col justify-between p-6">
-                <div>
-                  <span
-                    className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]"
-                    style={{
-                      background: "rgba(239,68,68,0.18)",
-                      color: "#fca5a5",
-                      border: "1px solid rgba(239,68,68,0.30)",
-                    }}
-                  >
-                    <Sparkles className="h-3 w-3" /> Inaugurado
-                  </span>
-                  <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
-                    American Burger
-                  </h2>
-                  <p className="mt-1 max-w-md text-[12px] text-white/70">
-                    Praça de Alimentação · ao lado do Spoleto · acompanhamento
-                    de vendas em tempo real
-                  </p>
-                </div>
-                <div className="mt-4 flex items-center gap-2 text-[11px] text-white/60">
+              <div className="relative flex flex-col justify-center gap-2 p-6 sm:p-8" style={{ minHeight: 160 }}>
+                <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+                  American Burger
+                </h2>
+                <p className="max-w-md text-[12px] text-white/75 sm:text-sm">
+                  Praça de Alimentação · ao lado do Spoleto · acompanhamento
+                  de vendas em tempo real
+                </p>
+                <div className="mt-1 flex items-center gap-2 text-[11px] text-white/60">
                   <BarChart3 className="h-3.5 w-3.5" />
                   <span>Dashboard sincronizado com o grupo do Telegram</span>
                 </div>
-              </div>
-            </div>
-
-            <div
-              className="relative overflow-hidden rounded-2xl border"
-              style={{ borderColor: "var(--border)", boxShadow: "var(--shadow-soft)", minHeight: 180 }}
-            >
-              <img
-                src={neonAB}
-                alt="Letreiro neon American Burger"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(180deg, rgba(8,12,20,0.10) 0%, rgba(8,12,20,0.85) 100%)",
-                }}
-              />
-              <div className="relative flex h-full flex-col justify-end p-5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/60">
-                  Identidade
-                </p>
-                <p className="mt-1 text-base font-bold text-white">
-                  Sabor que ilumina o dia
-                </p>
               </div>
             </div>
           </section>
