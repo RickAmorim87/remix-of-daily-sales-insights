@@ -33,13 +33,38 @@ export const formatPct = (v: number) =>
   (v >= 0 ? "+" : "") + v.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%";
 
 export const channelMeta = [
-  { key: "caixa" as const, label: "Caixa", color: "hsl(155 60% 45%)", icon: "💰" },
-  { key: "totem" as const, label: "Totem", color: "hsl(230 70% 55%)", icon: "🧮" },
-  { key: "food99" as const, label: "99Food", color: "hsl(45 90% 55%)", icon: "🍔" },
-  { key: "ifood" as const, label: "iFood", color: "hsl(0 75% 60%)", icon: "🍕" },
-  { key: "cartoes" as const, label: "Cartões", color: "hsl(280 60% 60%)", icon: "💳" },
-  { key: "pix" as const, label: "Pix", color: "hsl(175 65% 45%)", icon: "⚡" },
+  { key: "caixa" as const, label: "Caixa", color: "#10b981", icon: "💰" },
+  { key: "totem" as const, label: "Totem", color: "#6366f1", icon: "🧮" },
+  { key: "food99" as const, label: "99Food", color: "#f59e0b", icon: "🍔" },
+  { key: "ifood" as const, label: "iFood", color: "#ef4444", icon: "🍕" },
+  { key: "cartoes" as const, label: "Cartões", color: "#a855f7", icon: "💳" },
+  { key: "pix" as const, label: "Pix", color: "#06b6d4", icon: "⚡" },
 ];
+
+// Linear regression for forecasting
+export function linearForecast(rows: Fechamento[], daysAhead: number) {
+  const sorted = [...rows].sort((a, b) => a.data.localeCompare(b.data));
+  if (sorted.length < 2) return [];
+  const n = sorted.length;
+  const xs = sorted.map((_, i) => i);
+  const ys = sorted.map((r) => Number(r.total));
+  const sumX = xs.reduce((a, b) => a + b, 0);
+  const sumY = ys.reduce((a, b) => a + b, 0);
+  const sumXY = xs.reduce((s, x, i) => s + x * ys[i], 0);
+  const sumX2 = xs.reduce((s, x) => s + x * x, 0);
+  const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX || 1);
+  const intercept = (sumY - slope * sumX) / n;
+  const lastDate = new Date(sorted[n - 1].data + "T00:00:00");
+  const out: { data: string; forecast: number }[] = [];
+  for (let i = 1; i <= daysAhead; i++) {
+    const d = new Date(lastDate);
+    d.setDate(d.getDate() + i);
+    const x = n - 1 + i;
+    const y = Math.max(0, slope * x + intercept);
+    out.push({ data: d.toISOString().slice(0, 10), forecast: y });
+  }
+  return out;
+}
 
 export type ChannelKey = (typeof channelMeta)[number]["key"];
 
