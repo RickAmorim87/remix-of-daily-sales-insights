@@ -1,4 +1,6 @@
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
@@ -18,6 +20,7 @@ import {
   channelMeta,
   formatCompact,
   formatCurrency,
+  linearForecast,
   movingAverage,
   type Fechamento,
 } from "@/lib/fechamentos";
