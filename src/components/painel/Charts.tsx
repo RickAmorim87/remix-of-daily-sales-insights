@@ -222,3 +222,83 @@ export function CanalBarChart({ rows }: { rows: Fechamento[] }) {
     </div>
   );
 }
+
+export function ProjecaoChart({ rows, daysAhead = 14 }: { rows: Fechamento[]; daysAhead?: number }) {
+  const sorted = [...rows].sort((a, b) => a.data.localeCompare(b.data));
+  const forecast = linearForecast(sorted, daysAhead);
+
+  const historic = sorted.map((r) => ({
+    label: format(parseISO(r.data), "dd/MM", { locale: ptBR }),
+    real: Number(r.total),
+    projetado: null as number | null,
+  }));
+  const future = forecast.map((f) => ({
+    label: format(parseISO(f.data), "dd/MM", { locale: ptBR }),
+    real: null as number | null,
+    projetado: Math.round(f.forecast),
+  }));
+  const data = [...historic, ...future];
+  const totalProjetado = forecast.reduce((s, f) => s + f.forecast, 0);
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border bg-card p-5 shadow-[var(--shadow-soft)]">
+      <div
+        className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full opacity-30 blur-3xl"
+        style={{ background: "var(--gradient-aurora)" }}
+      />
+      <div className="relative mb-4 flex items-baseline justify-between gap-3">
+        <div>
+          <h3 className="font-[Sora] text-base font-semibold">Projeção de faturamento</h3>
+          <p className="text-xs text-muted-foreground">
+            Histórico real + tendência linear • próximos {daysAhead} dias
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+            Projetado {daysAhead}d
+          </p>
+          <p className="font-[Sora] text-lg font-bold tabular-nums">
+            {formatCompact(totalProjetado)}
+          </p>
+        </div>
+      </div>
+      <div className="relative h-72 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="realGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#6366f1" stopOpacity={0.45} />
+                <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="projGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#a855f7" stopOpacity={0.35} />
+                <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.05} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+            <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
+            <YAxis tickFormatter={(v) => formatCompact(Number(v))} tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={70} />
+            <Tooltip
+              contentStyle={tooltipStyle}
+              formatter={(v: number | null, name: string) =>
+                v == null ? ["—", name] : [formatCurrency(Number(v)), name]
+              }
+            />
+            <Area type="monotone" dataKey="real" name="Real" stroke="#6366f1" strokeWidth={2.5} fill="url(#realGrad)" connectNulls={false} />
+            <Area type="monotone" dataKey="projetado" name="Projeção" stroke="#a855f7" strokeWidth={2.5} strokeDasharray="6 4" fill="url(#projGrad)" connectNulls={false} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-4 text-xs">
+        <span className="flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#6366f1]" />
+          Histórico real
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="h-2.5 w-6 rounded-full bg-gradient-to-r from-[#a855f7] to-[#06b6d4]" />
+          Projeção linear
+        </span>
+      </div>
+    </div>
+  );
+}
