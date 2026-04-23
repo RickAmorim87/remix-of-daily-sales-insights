@@ -12,6 +12,9 @@ import {
   Zap,
 } from "lucide-react";
 import { useFechamentos } from "@/hooks/use-fechamentos";
+import logoAB from "@/assets/american-burger-logo.png";
+import neonAB from "@/assets/american-burger-neon.png";
+import lojaAB from "@/assets/american-burger-loja.png";
 import {
   filterByPeriod,
   formatCurrency,
@@ -131,18 +134,21 @@ function PainelBI() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-[1340px] px-4 pb-16 pt-7 sm:px-6 lg:px-8">
       {/* TOPBAR */}
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-lg shadow-[var(--shadow-glow)]"
-            style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)" }}
+            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/95 p-1 shadow-[0_8px_24px_rgba(239,68,68,0.35)] ring-1 ring-white/20"
           >
-            📊
+            <img
+              src={logoAB}
+              alt="American Burger"
+              className="h-full w-full object-contain"
+            />
           </div>
           <div>
-            <p className="text-base font-bold tracking-tight">Fechamento Diário</p>
+            <p className="text-base font-bold tracking-tight">American Burger</p>
             <p className="text-[11px] text-muted-foreground">
-              Painel Executivo · Hamburgueria
+              Painel Executivo · Fechamento Diário
             </p>
           </div>
         </div>
