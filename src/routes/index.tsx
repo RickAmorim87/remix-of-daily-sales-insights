@@ -5,16 +5,18 @@ import {
   BarChart3,
   CalendarRange,
   CreditCard,
+  Download,
+  FileText,
+  MessageCircle,
   RefreshCw,
-  Sparkles,
   Target,
   Wallet,
   Zap,
 } from "lucide-react";
 import { useFechamentos } from "@/hooks/use-fechamentos";
 import logoAB from "@/assets/american-burger-logo.png";
-import neonAB from "@/assets/american-burger-neon.png";
 import lojaAB from "@/assets/american-burger-loja.png";
+import { exportToPDF, exportToDOCX, shareWhatsapp } from "@/lib/exportar";
 import {
   filterByPeriod,
   formatCurrency,
