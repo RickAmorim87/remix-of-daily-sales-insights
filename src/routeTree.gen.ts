@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiTelegramWebhookRouteImport } from './routes/api/telegram-webhook'
 import { Route as ApiPublicTelegramWhoamiRouteImport } from './routes/api/public/telegram-whoami'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram-webhook'
 import { Route as ApiPublicTelegramPollRouteImport } from './routes/api/public/telegram-poll'
@@ -17,6 +18,11 @@ import { Route as ApiPublicTelegramPollRouteImport } from './routes/api/public/t
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTelegramWebhookRoute = ApiTelegramWebhookRouteImport.update({
+  id: '/api/telegram-webhook',
+  path: '/api/telegram-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicTelegramWhoamiRoute = ApiPublicTelegramWhoamiRouteImport.update({
@@ -38,12 +44,14 @@ const ApiPublicTelegramPollRoute = ApiPublicTelegramPollRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/telegram-webhook': typeof ApiTelegramWebhookRoute
   '/api/public/telegram-poll': typeof ApiPublicTelegramPollRoute
   '/api/public/telegram-webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/telegram-whoami': typeof ApiPublicTelegramWhoamiRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/telegram-webhook': typeof ApiTelegramWebhookRoute
   '/api/public/telegram-poll': typeof ApiPublicTelegramPollRoute
   '/api/public/telegram-webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/telegram-whoami': typeof ApiPublicTelegramWhoamiRoute
@@ -51,6 +59,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/telegram-webhook': typeof ApiTelegramWebhookRoute
   '/api/public/telegram-poll': typeof ApiPublicTelegramPollRoute
   '/api/public/telegram-webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/telegram-whoami': typeof ApiPublicTelegramWhoamiRoute
@@ -59,18 +68,21 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/api/telegram-webhook'
     | '/api/public/telegram-poll'
     | '/api/public/telegram-webhook'
     | '/api/public/telegram-whoami'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/api/telegram-webhook'
     | '/api/public/telegram-poll'
     | '/api/public/telegram-webhook'
     | '/api/public/telegram-whoami'
   id:
     | '__root__'
     | '/'
+    | '/api/telegram-webhook'
     | '/api/public/telegram-poll'
     | '/api/public/telegram-webhook'
     | '/api/public/telegram-whoami'
@@ -78,6 +90,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiTelegramWebhookRoute: typeof ApiTelegramWebhookRoute
   ApiPublicTelegramPollRoute: typeof ApiPublicTelegramPollRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
   ApiPublicTelegramWhoamiRoute: typeof ApiPublicTelegramWhoamiRoute
@@ -90,6 +103,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/telegram-webhook': {
+      id: '/api/telegram-webhook'
+      path: '/api/telegram-webhook'
+      fullPath: '/api/telegram-webhook'
+      preLoaderRoute: typeof ApiTelegramWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/telegram-whoami': {
@@ -118,6 +138,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiTelegramWebhookRoute: ApiTelegramWebhookRoute,
   ApiPublicTelegramPollRoute: ApiPublicTelegramPollRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
   ApiPublicTelegramWhoamiRoute: ApiPublicTelegramWhoamiRoute,

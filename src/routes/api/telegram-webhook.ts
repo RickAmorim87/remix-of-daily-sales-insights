@@ -5,7 +5,7 @@ import {
   telegramWebhookOk,
 } from "@/server/telegram-webhook-handler";
 
-export const Route = createFileRoute("/api/public/telegram-webhook")({
+export const Route = createFileRoute("/api/telegram-webhook")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: telegramWebhookCorsHeaders }),
