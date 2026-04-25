@@ -70,8 +70,17 @@ export type ChannelKey = (typeof channelMeta)[number]["key"];
 
 export function filterByPeriod(rows: Fechamento[], period: Period): Fechamento[] {
   if (period === "all") return rows;
-  const today = new Date();
-  today.setHours(23, 59, 59, 999);
+  if (rows.length === 0) return rows;
+
+  // Usa a data MAIS RECENTE do dataset como referência (não o relógio do navegador).
+  // Isso evita que filtros 7d/30d/mtd/90d fiquem vazios quando o relógio
+  // do cliente está dessincronizado dos dados reais salvos no banco.
+  const maxDataStr = rows.reduce(
+    (max, r) => (r.data > max ? r.data : max),
+    rows[0].data,
+  );
+  const today = new Date(maxDataStr + "T23:59:59");
+
   let start = new Date(today);
   if (period === "7d") start.setDate(start.getDate() - 6);
   else if (period === "30d") start.setDate(start.getDate() - 29);
