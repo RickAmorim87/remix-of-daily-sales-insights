@@ -106,9 +106,20 @@ function PainelBI() {
   }, [data, rows, totals]);
 
   const projecaoMes = useMemo(() => {
-    const today = new Date();
-    const ano = today.getFullYear();
-    const mes = today.getMonth();
+    if (data.length === 0) {
+      const today = new Date();
+      const diasMes = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+      return { proj: 0, atual: 0, diasFeitos: 0, diasMes };
+    }
+    // Usa o mês mais recente presente no dataset como referência,
+    // evitando depender do relógio do navegador.
+    const maxDataStr = data.reduce(
+      (max, r) => (r.data > max ? r.data : max),
+      data[0].data,
+    );
+    const refDate = new Date(maxDataStr + "T00:00:00");
+    const ano = refDate.getFullYear();
+    const mes = refDate.getMonth();
     const diasMes = new Date(ano, mes + 1, 0).getDate();
     const mtdRows = data.filter((r) => {
       const d = new Date(r.data + "T00:00:00");
