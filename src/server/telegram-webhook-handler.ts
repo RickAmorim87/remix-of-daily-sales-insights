@@ -37,13 +37,13 @@ export async function handleTelegramWebhook(request: Request) {
     console.log("TELEGRAM WEBHOOK TEXTO:", texto);
 
     if (!texto || !texto.toUpperCase().includes("FECHAMENTO DO DIA")) {
-      return telegramWebhookOk({ skipped: true, reason: "no_fechamento_keyword" });
+      return telegramWebhookOk({ skipped: true, reason: "no_fechamento_keyword", texto });
     }
 
     const parsed = parseFechamento(texto);
     console.log("TELEGRAM WEBHOOK PARSED:", parsed);
 
-    if (!parsed) return telegramWebhookOk({ skipped: true, reason: "parse_failed" });
+    if (!parsed) return telegramWebhookOk({ skipped: true, reason: "parse_failed", texto });
 
     const row = {
       data: parsed.data,
