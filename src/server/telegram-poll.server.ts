@@ -65,6 +65,26 @@ export async function runTelegramPoll(): Promise<PollResult> {
 
     const data = await resp.json().catch(() => ({}));
     if (!resp.ok || !data?.ok) {
+      const desc: string = String(data?.description ?? "");
+      // Se houver webhook ativo, o getUpdates devolve 409. Apaga e tenta de novo.
+      if (resp.status === 409 || /webhook is active/i.test(desc)) {
+        try {
+          await fetch(`${GATEWAY_URL}/deleteWebhook`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${LOVABLE_API_KEY}`,
+              "X-Connection-Api-Key": TELEGRAM_API_KEY,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ drop_pending_updates: false }),
+          });
+          errors.push("deleted active webhook to enable polling");
+          continue;
+        } catch (e: any) {
+          errors.push(`deleteWebhook failed: ${e?.message ?? e}`);
+          break;
+        }
+      }
       errors.push(`getUpdates failed [${resp.status}]: ${JSON.stringify(data)}`);
       break;
     }
