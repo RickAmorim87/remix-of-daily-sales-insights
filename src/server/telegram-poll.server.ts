@@ -11,6 +11,7 @@ export interface PollResult {
   processed: number;
   saved: number;
   finalOffset: number;
+  skippedReason?: string;
   errors?: string[];
 }
 
@@ -26,13 +27,26 @@ export async function runTelegramPoll(): Promise<PollResult> {
   let totalProcessed = 0;
   let totalSaved = 0;
 
+  // Evita duas execuções simultâneas do getUpdates, que causa erro 409 no Telegram.
+  const staleBefore = new Date(Date.now() - 55_000).toISOString();
   const { data: state, error: stateErr } = await supabaseAdmin
     .from("telegram_bot_state")
-    .select("update_offset")
+    .update({ last_poll_at: new Date().toISOString() })
     .eq("id", 1)
-    .single();
+    .or(`last_poll_at.is.null,last_poll_at.lt.${staleBefore}`)
+    .select("update_offset")
+    .maybeSingle();
 
-  if (stateErr) throw new Error(`bot_state read: ${stateErr.message}`);
+  if (stateErr) throw new Error(`bot_state lock: ${stateErr.message}`);
+  if (!state) {
+    return {
+      ok: true,
+      processed: 0,
+      saved: 0,
+      finalOffset: 0,
+      skippedReason: "poll_already_running",
+    };
+  }
   let currentOffset: number = Number(state?.update_offset ?? 0);
 
   while (true) {
@@ -67,6 +81,11 @@ export async function runTelegramPoll(): Promise<PollResult> {
     if (!resp.ok || !data?.ok) {
       const desc: string = String(data?.description ?? "");
       // Se houver webhook ativo, o getUpdates devolve 409. Apaga e tenta de novo.
+      // Se for outro getUpdates em andamento, encerra sem avançar offset.
+      if (/terminated by other getUpdates request/i.test(desc)) {
+        errors.push("another getUpdates request is already running");
+        break;
+      }
       if (resp.status === 409 || /webhook is active/i.test(desc)) {
         try {
           await fetch(`${GATEWAY_URL}/deleteWebhook`, {
